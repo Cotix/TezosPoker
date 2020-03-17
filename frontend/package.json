@@ -1,0 +1,20 @@
+{
+  "name": "poker-frontend",
+  "version": "0.1.0",
+  "description": "Frontend for the TezosPoker project",
+  "main": "main.js",
+  "scripts": {
+    "build": "parcel build src/poker.js --public-url /tezos --no-source-maps"
+  },
+  "browserslist": [
+    "last 3 Chrome versions"
+  ],
+  "author": "",
+  "dependencies": {
+    "secure-shuffle": "^1.2.0"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  }
+}
+
