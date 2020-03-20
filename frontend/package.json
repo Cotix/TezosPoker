@@ -4,7 +4,7 @@
   "description": "Frontend for the TezosPoker project",
   "main": "main.js",
   "scripts": {
-    "build": "parcel build src/poker.js --public-url /tezos --no-source-maps"
+    "build": "cp src/index.html dist/index.html && cp -r src/libs dist/ && parcel build src/poker.js --public-url /static --no-source-maps"
   },
   "browserslist": [
     "last 3 Chrome versions"
@@ -17,4 +17,3 @@
     "parcel-bundler": "^1.12.4"
   }
 }
-
