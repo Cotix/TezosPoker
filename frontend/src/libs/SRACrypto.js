@@ -4,7 +4,9 @@
 * @version 0.2.0
 */
 import WorkerHost from "./WorkerHost";
-const _defaultHostScript = "./static/SRACryptoWorker.js"; //default WorkerHost script
+import urls from '../assets.urls';
+console.log(urls['./libs/SRACryptoWorker.js']);
+const _defaultHostScript = urls['./libs/SRACryptoWorker.js']; //default WorkerHost script
 let _hosts = new Array();
 let _queue = new Array(); //queue of requests; automatically adjusted as WorkerHosts become available (ready)
 let _maxHosts = 4; //max number of concurrent Workerhost instances

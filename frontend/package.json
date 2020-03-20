@@ -4,7 +4,7 @@
   "description": "Frontend for the TezosPoker project",
   "main": "main.js",
   "scripts": {
-    "build": "rm -rf dist/* && cp src/libs/SRACryptoWorker.js dist/ && parcel build --no-minify src/index.html --public-url /static --no-source-maps --global pokerjs"
+    "build": "rm -rf dist/* && parcel build --no-minify src/index.html --public-url /static --no-source-maps --global pokerjs"
   },
   "browserslist": [
     "last 3 Chrome versions"
@@ -14,6 +14,7 @@
     "secure-shuffle": "^1.2.0"
   },
   "devDependencies": {
-    "parcel-bundler": "^1.12.4"
+    "parcel-bundler": "^1.12.4",
+    "parcel-plugin-assets-list": "^1.7.1"
   }
 }
