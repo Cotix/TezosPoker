@@ -1,10 +1,16 @@
 <html>
 <head>
-    <script src="static/libs/BigInteger.min.js" type="text/javascript" language="javascript"> </script>
-    <script src="static/libs/EventPromise.js" type="text/javascript" language="javascript"> </script>
-    <script src="static/libs/EventDispatcher.js" type="text/javascript" language="javascript"> </script>
-    <script src="static/libs/WorkerHost.js" type="text/javascript" language="javascript"> </script>
-    <script src="static/libs/SRACrypto.js" type="text/javascript" language="javascript"> </script>
-    <script src="static/poker.js" type="text/javascript" language="javascript"> </script>
+    <script src="libs/BigInteger.min.js" type="text/javascript" language="javascript"> </script>
+    <script src="libs/EventPromise.js" type="text/javascript" language="javascript"> </script>
+    <script src="libs/EventDispatcher.js" type="text/javascript" language="javascript"> </script>
+    <script src="libs/WorkerHost.js" type="text/javascript" language="javascript"> </script>
+    <script src="libs/SRACrypto.js" type="text/javascript" language="javascript"> </script>
+    <script src="poker.js" type="text/javascript" language="javascript"> </script>
 </head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+    (async () => await pokerjs.init())();
+</script>
+</body>
 </html>

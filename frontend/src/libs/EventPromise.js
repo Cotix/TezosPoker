@@ -16,7 +16,7 @@
 * @mixin
 * @mixes Object.prototype
 */
-class EventPromise {
+export class EventPromise {
 
    /**
    * Registers an event listener on a target object and returns a Promise.

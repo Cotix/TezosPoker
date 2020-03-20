@@ -4,6 +4,8 @@
 * @version 0.2.0
 */
 let _instances = 0;
+import EventDispatcher from './EventDispatcher.js';
+import EventPromise from './EventPromise.js';
 
 /**
 * @class Manages a WebWorker instance and responds via events and/or
@@ -188,3 +190,5 @@ class WorkerHost extends EventDispatcher {
    }
 
 }
+
+export default WorkerHost;

@@ -4,7 +4,7 @@
   "description": "Frontend for the TezosPoker project",
   "main": "main.js",
   "scripts": {
-    "build": "cp src/index.html dist/index.html && cp -r src/libs dist/ && parcel build src/poker.js --public-url /static --no-source-maps"
+    "build": "rm -rf dist/* && parcel build --no-minify src/index.html --public-url /static --no-source-maps --global pokerjs"
   },
   "browserslist": [
     "last 3 Chrome versions"

@@ -105,3 +105,5 @@ class EventDispatcher {
       return ("[object EventDispatcher]");
    }
 }
+
+export default EventDispatcher;
