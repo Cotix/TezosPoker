@@ -4,7 +4,7 @@
   "description": "Frontend for the TezosPoker project",
   "main": "main.js",
   "scripts": {
-    "build": "rm -rf dist/* && parcel build --no-minify src/index.html --public-url /static --no-source-maps --global pokerjs"
+    "build": "rm -rf dist/* && cp src/libs/SRACryptoWorker.js dist/ && parcel build --no-minify src/index.html --public-url /static --no-source-maps --global pokerjs"
   },
   "browserslist": [
     "last 3 Chrome versions"
