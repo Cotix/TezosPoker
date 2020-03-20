@@ -5,7 +5,7 @@
 */
 import WorkerHost from "./WorkerHost";
 import urls from '../assets.urls';
-console.log(urls['./libs/SRACryptoWorker.js']);
+
 const _defaultHostScript = urls['./libs/SRACryptoWorker.js']; //default WorkerHost script
 let _hosts = new Array();
 let _queue = new Array(); //queue of requests; automatically adjusted as WorkerHosts become available (ready)

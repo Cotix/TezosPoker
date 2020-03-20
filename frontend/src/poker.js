@@ -30,6 +30,8 @@ export let game = new PokerGame();
 
 function draw_text(text) {
     let canvas = document.getElementById("canvas");
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
     let ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.textAlign = "center";
