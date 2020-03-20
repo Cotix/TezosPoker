@@ -1,7 +1,8 @@
 from flask import Flask, request, send_from_directory
-
+from flask_socketio import SocketIO
 app = Flask(__name__)
 
+socketio = SocketIO(app)
 
 @app.route('/static/<path:path>')
 def send_static(path):
@@ -17,4 +18,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run()
+    socketio.run(app, debug=True)
