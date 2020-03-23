@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 
 
 const State = {
-    LOBBY: 'lobby', TABLE: 'table', SETUPDONE: 'setupdone',AWAITINGDECK: 'awaitingdeck', DECKMADE: 'deckmade'
+    LOBBY: 'lobby', TABLE: 'table', SETUPDONE: 'setupdone',AWAITINGDECK: 'awaitingdeck', AWAITINGHAND: 'awaitinghand'
 };
 
 class PokerGame {
@@ -16,6 +16,7 @@ class PokerGame {
         this.plaintext = undefined;
         this.player_id = 1;
         this.state = State.LOBBY;
+        this.hand = undefined;
         this.deck = undefined;
     }
 
@@ -38,6 +39,24 @@ class PokerGame {
             async x => (await this.crypto.invoke('encrypt', {'value':x, 'keypair':this.key})).data.result
         )));
         return sshuffle(result);
+    }
+
+    async decrypt_value(value) {
+        let resultObj = await this.crypto.invoke('decrypt', {'value': value, 'keypair':this.key});
+        return resultObj.data.result;
+    }
+
+    get_card_value(value) {
+        let result = this.plaintext.indexOf(value);
+        if (result === -1) return undefined;
+        const suite = ['Clubs', 'Hearts', 'Clover', 'Diamond'][result%4];
+        const rank = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'][Math.floor(result/4)];
+        return suite + ' ' + rank;
+    }
+
+
+    draw_card() {
+        return this.deck.pop();
     }
 }
 
@@ -71,7 +90,7 @@ function draw_text(text) {
 }
 
 function emit(topic, data) {
-    socket.emit('message', {topic: topic, room: game.room, ...data});
+    socket.emit('message', {topic: topic, room: game.room, sender: game.player_id, ...data});
 }
 
 function on_lobby(data) {
@@ -129,9 +148,31 @@ function on_message(data) {
 
         case 'deck_final':
             assert_state(State.AWAITINGDECK);
+            game.state = State.AWAITINGHAND;
             draw_text('Deck negotiated. Drawing cards..');
             game.deck = data['deck'];
+            // pop the opponents cards
+            const p0 = [game.draw_card(), game.draw_card()];
+            const p1 = [game.draw_card(), game.draw_card()];
+            let cards = game.player_id == 0 ? p1 : p0;
+            Promise.all(cards.map(
+                async x => (await game.decrypt_value(x))
+            )).then(result => {
+               emit('player_hand', {cards: result});
+            });
+            break;
 
+        case 'player_hand':
+            assert_state(State.AWAITINGHAND);
+            if (data['sender'] === game.player_id) break;
+            Promise.all(data['cards'].map(
+                async x => (await game.decrypt_value(x))
+            )).then(result => {
+                game.hand = result;
+                draw_text('Received cards: ' + game.get_card_value(result[0]) + ' ' + game.get_card_value(result[1]));
+                console.log(game.hand);
+                console.log(game.plaintext);
+            });
             break;
     }
 }
