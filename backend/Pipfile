@@ -5,4 +5,4 @@ verify_ssl = true
 
 [packages]
 flask = "*"
-
+flask-socketio = "*"

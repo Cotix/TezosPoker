@@ -1,8 +1,12 @@
 from flask import Flask, request, send_from_directory
+import random, string
 from flask_socketio import SocketIO, emit, join_room, leave_room
 app = Flask(__name__)
 
 socketio = SocketIO(app)
+
+current_room = None
+
 
 @app.route('/static/<path:path>')
 def send_static(path):
@@ -11,24 +15,29 @@ def send_static(path):
         mimetype = 'text/javascript'
     return send_from_directory('static', path, mimetype=mimetype)
 
+
 @socketio.on('join')
-def on_join(data):
-    #username = data['username']
-    channel = data['channel']
-    join_room(channel)
-    #send(username + ' has entered the room.', channel=channel)
+def on_join():
+    global current_room
+    if not current_room:
+        channel = ''.join(random.choice(string.ascii_letters) for i in range(10))
+        current_room = channel
+        join_room(channel)
+        emit('lobby', {'room': channel}, room=channel)
+    else:
+        channel = current_room
+        current_room = None
+        join_room(channel)
+        emit('start', {'room': channel}, room=channel)
 
-@socketio.on('leave')
-def on_leave(data):
-    #username = data['username']
-    room = data['room']
-    leave_room(room)
-    #send(username + ' has left the room.', room=room)
 
-@socketio.on("send message")
+@socketio.on('message')
 def message(data):
-    room = data['channel']
-    emit('broadcast message', data['message'], room=room)
+    print(data)
+    if not 'room' in data:
+        return
+    emit('message', data, room=data['room'])
+
 
 @app.route('/')
 def index():
