@@ -1,10 +1,13 @@
 const sshuffle = require('secure-shuffle');
+import { draw_loop } from './gui';
 import SRACrypto from './libs/SRACrypto';
 import io from 'socket.io-client';
 
 
-const State = {
-    LOBBY: 'lobby', TABLE: 'table', SETUPDONE: 'setupdone',AWAITINGDECK: 'awaitingdeck', AWAITINGHAND: 'awaitinghand'
+
+export const State = {
+    LOBBY: 'lobby', TABLE: 'table', SETUPDONE: 'setupdone',AWAITINGDECK: 'awaitingdeck', AWAITINGHAND: 'awaitinghand',
+    BET0: 'bet0', BET1: 'bet1', FLOP: 'flop', TURN: 'turn', RIVER: 'river'
 };
 
 class PokerGame {
@@ -16,8 +19,10 @@ class PokerGame {
         this.plaintext = undefined;
         this.player_id = 1;
         this.state = State.LOBBY;
-        this.hand = undefined;
+        this.hand = [];
         this.deck = undefined;
+        this.river = [];
+        this.bets = [0, 0];
     }
 
     async init(prime) {
@@ -79,22 +84,11 @@ function assert_state(state) {
     }
 }
 
-function draw_text(text) {
-    let canvas = document.getElementById("canvas");
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-    let ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.textAlign = "center";
-    ctx.fillText(text, canvas.width/2, canvas.height/2);
-}
-
 function emit(topic, data) {
     socket.emit('message', {topic: topic, room: game.room, sender: game.player_id, ...data});
 }
 
 function on_lobby(data) {
-    draw_text('Waiting in lobby for other player. Calculating prime...');
     game.player_id = 0;
     game.room = data['room'];
     game.generate_prime().then(result => {
@@ -105,7 +99,6 @@ function on_lobby(data) {
 }
 
 function on_start(data) {
-    draw_text('Other player found. Preparing game...');
     game.room = data['room'];
     if (game.prime !== undefined) {
         emit('shared_prime', {prime: game.prime});
@@ -120,15 +113,12 @@ function on_message(data) {
     switch(data['topic']) {
         case 'shared_prime':
             //TODO: Check if prime is correct
-            draw_text('Shared prime negotiated! Calculating quadresidues...');
             game.init(data['prime']).then(() => {
                 game.state = State.SETUPDONE;
                 if (game.player_id === 0) {
-                    draw_text('Encrypting and shuffling deck...');
                     game.encrypt_shuffle_deck(game.plaintext).then((result) => {
                         emit('deck_proposal', {deck: result});
                         game.state = State.AWAITINGDECK;
-                        draw_text('Sent deck proposal...');
                     });
                 }
             });
@@ -137,9 +127,7 @@ function on_message(data) {
         case 'deck_proposal':
             if (game.player_id === 0) break; // Only player 1 does this
             require_state(State.SETUPDONE).then(() => {
-                draw_text('Received deck proposal, encrypting and shuffling...');
                 game.encrypt_shuffle_deck(data['deck']).then((result) => {
-                    draw_text('Deck shuffled and ready to play!');
                     game.state = State.AWAITINGDECK;
                     emit('deck_final', {deck: result});
                 });
@@ -149,7 +137,6 @@ function on_message(data) {
         case 'deck_final':
             assert_state(State.AWAITINGDECK);
             game.state = State.AWAITINGHAND;
-            draw_text('Deck negotiated. Drawing cards..');
             game.deck = data['deck'];
             // pop the opponents cards
             const p0 = [game.draw_card(), game.draw_card()];
@@ -163,15 +150,13 @@ function on_message(data) {
             break;
 
         case 'player_hand':
-            assert_state(State.AWAITINGHAND);
             if (data['sender'] === game.player_id) break;
+            assert_state(State.AWAITINGHAND);
             Promise.all(data['cards'].map(
                 async x => (await game.decrypt_value(x))
             )).then(result => {
                 game.hand = result;
-                draw_text('Received cards: ' + game.get_card_value(result[0]) + ' ' + game.get_card_value(result[1]));
-                console.log(game.hand);
-                console.log(game.plaintext);
+                game.state = State.BET0;
             });
             break;
     }
@@ -179,7 +164,7 @@ function on_message(data) {
 
 
 export async function init() {
-    draw_text('Connecting to lobby...');
+    draw_loop();
     socket = io('http://localhost:5000');
     socket.on('connect', () => {socket.emit('join')});
     socket.on('lobby', on_lobby);
