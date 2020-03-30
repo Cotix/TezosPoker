@@ -1,68 +1,32 @@
 import smartpy as sp
 
-
-class Card(object):
-
-    def __init__(self, rank, suit):
-        self.rank = rank
-        self.suit = suit
-
-    def __eq__(self, other):
-        return (self.rank == other.rank)
-
-    def __ne__(self, other):
-        return (self.rank != other.rank)
-
-    def __lt__(self, other):
-        return (self.rank < other.rank)
-
-    def __le__(self, other):
-        return (self.rank <= other.rank)
-
-    def __gt__(self, other):
-        return (self.rank > other.rank)
-
-    def __ge__(self, other):
-        return (self.rank >= other.rank)
-
-
-
-
-
-
 class PokerGame(sp.Contract):
     def __init__(self):
         self.init(winner=0,
                   chips_player1=1000,
                   chips_player2=1000)
 
-
-    def card_decrypt(card):
-        dcard = card #.decrypt()  # TODO
-        rank = dcard % 13
-        suit = dcard % 4
-        return Card(rank, suit)
-
     @sp.entry_point
     def play(self, params):
         sp.verify(self.data.winner == 0)
-        # TODO more checks
+        sp.verify(1 <= params.winning_party)
+        sp.verify(2 >= params.winning_party)
+        sp.verify(params.bet > 0)
 
-        hand1 = [params.card1]
-        hand2 = [params.card2]
+        sp.if params.winning_party == 1:
+            sp.verify(self.data.chips_player2 >= params.bet)
+            self.data.chips_player1 += params.bet
+            self.data.chips_player2 -= params.bet
+            sp.if self.data.chips_player1 == 2000:
+                self.data.winner = 1
 
-        # sp.for i in sp.range(0, 5):
-        #     hand1.append(self.card_decrypt(params.cards1[i]))
-        #     hand2.append(self.card_decrypt(params.cards2[i]))
+        sp.else:
+            sp.verify(self.data.chips_player1 >= params.bet)
+            self.data.chips_player2 += params.bet
+            self.data.chips_player1 -= params.bet
+            sp.if self.data.chips_player2 == 2000:
+                self.data.winner = 2
 
-
-        score1, score2 = max(hand1), max(hand2) # evaluate(hand1, hand2)
-        sp.if score1 > score2:
-            self.data.chips_player1 += params.half_pot*2
-            self.data.chips_player2 -= params.half_pot
-        sp.if score2 > score1:
-            self.data.chips_player2 += params.half_pot*2
-            self.data.chips_player1 -= params.half_pot
 
 
 # State Channels - Example for illustrative purposes only.
@@ -229,6 +193,13 @@ class StateChannel(sp.Contract):
                 self.checkSeqStateSignature(self.data.party2, sig, self.data.seq, self.data.baseState)
         self.data.nextParty = 3 - self.data.nextParty
 
+
+
+
+
+
+
+
 if "templates" not in __name__:
 
     @sp.add_test(name = "StateChannels", profile=True)
@@ -317,24 +288,56 @@ if "templates" not in __name__:
         scenario.h2("Off-chain interactions")
         scenario.h3("Alice")
         scenario += cAlice.play(party = 1,
-                                  sub   = sp.record(half_pot = 50, card1 = 5, card2 = 10),
+                                  sub   = sp.record(bet=200, winning_party=2),
                                   sig   = sp.none)
         scenario.p("Alice sends data to Bob")
         sig1 = scenario.compute(aliceSignsState())
         scenario.show(sig1)
         scenario += cBob.play(party = 1,
-                                  sub   = sp.record(half_pot = 50, card1 = 5, card2 = 10),
+                                  sub   = sp.record(bet=200, winning_party=2),
                                   sig   = sp.some(sig1))
 
-        # scenario.h3("Bob")
-        # scenario += cBob  .play(party = 2,
-        #                           sub   = sp.record(half_pot = 50, card2 = 5, card1 = 10),
-        #                           sig   = sp.none)
-        # sig2 = bobSignsState()
-        # scenario.p("Bob sends data to Alice")
-        # scenario += cAlice.play(party = 2,
-        #                           sub   = sp.record(half_pot = 50, card1 = 5, card2 = 10),
-        #                           sig   = sp.some(sig2))
+        scenario.h3("Bob")
+        scenario += cBob  .play(party = 2,
+                                  sub   = sp.record(bet=200, winning_party=1),
+                                  sig   = sp.none)
+        sig2 = bobSignsState()
+        scenario.p("Bob sends data to Alice")
+        scenario += cAlice.play(party = 2,
+                                  sub   = sp.record(bet=200, winning_party=1),
+                                  sig   = sp.some(sig2))
+
+
+        scenario += cAlice.play(party = 1,
+                                  sub   = sp.record(bet=200, winning_party=2),
+                                  sig   = sp.none)
+        scenario.p("Alice sends data to Bob")
+        sig1 = scenario.compute(aliceSignsState())
+        scenario.show(sig1)
+        scenario += cBob.play(party = 1,
+                                  sub   = sp.record(bet=200, winning_party=2),
+                                  sig   = sp.some(sig1))
+
+
+        scenario.h3("Bob")
+        scenario += cBob  .play(party = 2,
+                                  sub   = sp.record(bet=1200, winning_party=1),
+                                  sig   = sp.none)
+        sig2 = bobSignsState()
+        scenario.p("Bob sends data to Alice")
+        scenario += cAlice.play(party = 2,
+                                  sub   = sp.record(bet=1200, winning_party=1),
+                                  sig   = sp.some(sig2))
+
+
+
+
+
+
+
+
+
+
 
         # scenario.h3("Alice (wrong move example)")
         # scenario += cAlice.play(party = 1,
