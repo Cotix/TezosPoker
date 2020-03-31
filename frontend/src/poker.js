@@ -59,6 +59,13 @@ class PokerGame {
         return suite + ' ' + rank;
     }
 
+    bet(amount) {
+        if ((this.state === State.BET0 && this.player_id === 0) || (this.state === State.BET1 && this.player_id === 1)) {
+            // Little ugly to call socket here because it entangles the game logic with networking
+            // But fuck it
+            emit('bet', {amount: amount});
+        }
+    }
 
     draw_card() {
         return this.deck.pop();
@@ -158,6 +165,47 @@ function on_message(data) {
                 game.hand = result;
                 game.state = State.BET0;
             });
+            break;
+
+        case 'bet':
+            if (data['sender'] === 0) assert_state(State.BET0);
+            if (data['sender'] === 1) assert_state(State.BET1);
+            //TODO: Check if its a check, call, raise or a fold
+            game.bets[data['sender']] += data['amount'];
+            if (game.state === State.BET0) game.state = State.BET1;
+            else {
+                let cards = [];
+                if (game.river.length === 0) {
+                    cards = [game.draw_card(), game.draw_card(), game.draw_card()];
+                    game.state = State.FLOP;
+                } else if (game.river.length === 3) {
+                    cards = [game.draw_card()];
+                    game.state = State.TURN;
+                } else if (game.river.length === 4) {
+                    cards = [game.draw_card()];
+                    game.state = State.RIVER;
+                } else if (game.river.length === 5) {
+                    //river -> end
+                }
+                if (cards.length !== 0) {
+                    Promise.all(cards.map(
+                        async x => (await game.decrypt_value(x))
+                    )).then(result => {
+                        emit('river_cards', {cards: result});
+                    });
+                }
+            }
+            break;
+
+        case 'river_cards':
+            if (data['sender'] !== game.player_id) {
+                Promise.all(data['cards'].map(
+                    async x => (await game.decrypt_value(x))
+                )).then(result => {
+                    game.river = game.river.concat(result);
+                    game.state = State.BET0;
+                });
+            }
             break;
     }
 }

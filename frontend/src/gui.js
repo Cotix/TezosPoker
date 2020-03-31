@@ -49,5 +49,11 @@ export async function draw_loop() {
             draw_text(`Your hand: ${game.get_card_value(game.hand[0])}, ${game.get_card_value(game.hand[1])}`,
                 canvas.width/2, canvas.height/1.5);
         }
+        if (game.river.length !== 0) {
+            let river = game.river.map(x => game.get_card_value(x));
+            draw_text(`River: ${river.join(', ')}`,
+                canvas.width/2, canvas.height/1.75);
+        }
+
     }
 }
