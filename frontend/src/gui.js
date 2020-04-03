@@ -43,6 +43,9 @@ export async function draw_loop() {
     while(true) {
         await sleep(50);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+
         switch(game.state) {
             case State.LOBBY:
                 draw_text('Waiting in lobby for other player. Calculating prime...');
@@ -67,14 +70,17 @@ export async function draw_loop() {
                 draw_text2('Player 2\'s turn');
                 break;
         }
+
+        ctx.fillText("Player " + (game.player_id + 1), 30, 20);
+
         if (game.hand.length !== 0) {
             draw_text(`Your hand: ${game.get_card_value(game.hand[0])}, ${game.get_card_value(game.hand[1])}`,
                 canvas.width/2, canvas.height/1.5);
 
             imageObjA.src = '/static/images/' + game.get_card_value(game.hand[0]) + '.png';
             imageObjB.src = '/static/images/' + game.get_card_value(game.hand[1]) + '.png';
-            ctx.drawImage(imageObjA, canvas.width / 2 - 75 - 65, canvas.height-200, 130, 200);
-            ctx.drawImage(imageObjB, canvas.width / 2 + 75 - 65, canvas.height-200, 130, 200);
+            ctx.drawImage(imageObjA, canvas.width / 2 - 75 - 65, canvas.height-260, 130, 200);
+            ctx.drawImage(imageObjB, canvas.width / 2 + 75 - 65, canvas.height-260, 130, 200);
 
             imageObjC.src = '/static/images/BACK.png';
             ctx.drawImage(imageObjC, canvas.width / 2 - 75 - 65, 0, 130, 200);
