@@ -26,7 +26,7 @@ export async function draw_loop() {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
     ctx = canvas.getContext("2d");
-    ctx.font = '24pt Arial';
+    ctx.font = '24pt';
 
     // var imageObj = new Image();
     // imageObj.src = '/static/images/Diamond 2.png';
