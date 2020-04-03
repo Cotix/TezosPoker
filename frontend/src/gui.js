@@ -26,6 +26,7 @@ export async function draw_loop() {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
     ctx = canvas.getContext("2d");
+    ctx.font = '24pt Arial';
 
     // var imageObj = new Image();
     // imageObj.src = '/static/images/Diamond 2.png';
@@ -71,7 +72,7 @@ export async function draw_loop() {
                 break;
         }
 
-        ctx.fillText("Player " + (game.player_id + 1), 30, 20);
+        ctx.fillText("Player " + (game.player_id + 1), 60, 30);
 
         if (game.hand.length !== 0) {
             draw_text(`Your hand: ${game.get_card_value(game.hand[0])}, ${game.get_card_value(game.hand[1])}`,
