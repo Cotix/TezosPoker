@@ -81,9 +81,9 @@ export async function draw_loop() {
             ctx.drawImage(imageObjC, canvas.width / 2 + 75 - 65, 0, 130, 200);
         }
         if (game.river.length !== 0) {
-            let river = game.river.map(x => game.get_card_value(x));
-            draw_text(`River: ${river.join(', ')}`,
-                canvas.width/2, canvas.height/1.75);
+            // let river = game.river.map(x => game.get_card_value(x));
+            // draw_text(`River: ${river.join(', ')}`,
+            //     canvas.width/2, canvas.height/1.75);
 
             if(game.river.length === 3) {
                 River1.src = '/static/images/' + game.get_card_value(game.river[0]) + '.png';
