@@ -8,6 +8,9 @@
 </head>
 <body>
 <canvas id="canvas"></canvas>
+<div id="controls" style="bottom: 0; position: absolute">
+    <button id="bet" onclick="pokerjs.game.bet(1);">Bet 1</button>
+</div>
 <script>
     (async () => await pokerjs.init())();
 </script>
