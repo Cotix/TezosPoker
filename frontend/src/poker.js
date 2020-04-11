@@ -20,9 +20,11 @@ class PokerGame {
         this.player_id = 1;
         this.state = State.LOBBY;
         this.hand = [];
+        this.opponent_hand = [];
         this.deck = undefined;
         this.river = [];
         this.bets = [0, 0];
+        this.chips = [1000, 1000];
     }
 
     async init(prime) {
@@ -115,6 +117,29 @@ function on_start(data) {
     }
 }
 
+function finish_hand(winner) {
+    if (winner === 0) {
+        game.chips = [game.chips[0] + game.bets[1], game.chips[1] - game.bets[1]];
+    } else {
+        game.chips = [game.chips[0] - game.bets[0], game.chips[1] + game.bets[0]];
+    }
+    game.bets = [0,0];
+    game.player_id = game.player_id === 0 ? 1 : 0;
+    game.hand = [];
+    game.opponent_hand = [];
+    game.deck = undefined;
+    game.river = [];
+
+    if (game.player_id === 0) {
+        game.encrypt_shuffle_deck(game.plaintext).then((result) => {
+            emit('deck_proposal', {deck: result});
+            game.state = State.AWAITINGDECK;
+        });
+    } else {
+        game.state = State.SETUPDONE;
+    }
+}
+
 function on_message(data) {
     console.log(data);
     switch(data['topic']) {
@@ -170,10 +195,27 @@ function on_message(data) {
         case 'bet':
             if (data['sender'] === 0) assert_state(State.BET0);
             if (data['sender'] === 1) assert_state(State.BET1);
-            //TODO: Check if its a check, call, raise or a fold
+            // TODO: Check wether bet is allowed or not
+
+            if (game.state === State.BET0) {
+                if (data['amount'] === -1) {
+                    finish_hand(1);
+                    break;
+                }
+            } else {
+                if (data['amount'] === -1) {
+                    finish_hand(0);
+                    break;
+                }
+            }
+
             game.bets[data['sender']] += data['amount'];
-            if (game.state === State.BET0) game.state = State.BET1;
+            if (game.state === State.BET0 && (game.bets[0] !== game.bets[1] && data['amount'] !== 0)) game.state = State.BET1;
             else {
+                if (game.bets[1] > game.bets[0]) {
+                    game.state = State.BET0;
+                    break;
+                }
                 let cards = [];
                 if (game.river.length === 0) {
                     cards = [game.draw_card(), game.draw_card(), game.draw_card()];
@@ -185,7 +227,7 @@ function on_message(data) {
                     cards = [game.draw_card()];
                     game.state = State.RIVER;
                 } else if (game.river.length === 5) {
-                    //river -> end
+                    emit('show', {hand: game.hand});
                 }
                 if (cards.length !== 0) {
                     Promise.all(cards.map(
@@ -205,6 +247,12 @@ function on_message(data) {
                     game.river = game.river.concat(result);
                     game.state = State.BET0;
                 });
+            }
+            break;
+
+        case 'show':
+            if (data['sender'] !== game.player_id) {
+                game.opponent_hand = data['hand'];
             }
             break;
     }

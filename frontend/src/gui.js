@@ -34,6 +34,7 @@ export async function draw_loop() {
     var imageObjA = new Image();
     var imageObjB = new Image();
     var imageObjC = new Image();
+    var imageObjD = new Image();
 
     var River1 = new Image();
     var River2 = new Image();
@@ -83,9 +84,16 @@ export async function draw_loop() {
             ctx.drawImage(imageObjA, canvas.width / 2 - 75 - 65, canvas.height-260, 130, 200);
             ctx.drawImage(imageObjB, canvas.width / 2 + 75 - 65, canvas.height-260, 130, 200);
 
-            imageObjC.src = '/static/images/BACK.png';
-            ctx.drawImage(imageObjC, canvas.width / 2 - 75 - 65, 0, 130, 200);
-            ctx.drawImage(imageObjC, canvas.width / 2 + 75 - 65, 0, 130, 200);
+            if (game.opponent_hand.length === 0) {
+                imageObjC.src = '/static/images/BACK.png';
+                ctx.drawImage(imageObjC, canvas.width / 2 - 75 - 65, 0, 130, 200);
+                ctx.drawImage(imageObjC, canvas.width / 2 + 75 - 65, 0, 130, 200);
+            } else {
+                imageObjC.src = '/static/images/' + game.get_card_value(game.opponent_hand[0]) + '.png';
+                imageObjD.src = '/static/images/' + game.get_card_value(game.opponent_hand[1]) + '.png';
+                ctx.drawImage(imageObjC, canvas.width / 2 - 75 - 65, 0, 130, 200);
+                ctx.drawImage(imageObjD, canvas.width / 2 + 75 - 65, 0, 130, 200);
+            }
         }
         if (game.river.length !== 0) {
             // let river = game.river.map(x => game.get_card_value(x));
