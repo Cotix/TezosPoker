@@ -1,4 +1,5 @@
 const sshuffle = require('secure-shuffle');
+const poker_hand = require('pokersolver').Hand;
 import { draw_loop } from './gui';
 import SRACrypto from './libs/SRACrypto';
 import io from 'socket.io-client';
@@ -21,6 +22,7 @@ class PokerGame {
         this.state = State.LOBBY;
         this.hand = [];
         this.opponent_hand = [];
+        this.solved_hands = [undefined, undefined];
         this.deck = undefined;
         this.river = [];
         this.bets = [0, 0];
@@ -53,12 +55,25 @@ class PokerGame {
         return resultObj.data.result;
     }
 
+    update_solved() {
+        this.solved_hands[this.player_id] = poker_hand.solve([...this.hand, ...this.river].map(x => this.get_card_id(x)));
+        this.solved_hands[this.player_id^1] = poker_hand.solve([...this.opponent_hand, ...this.river].map(x => this.get_card_id(x)))
+    }
+
     get_card_value(value) {
         let result = this.plaintext.indexOf(value);
         if (result === -1) return undefined;
         const suite = ['Clubs', 'Hearts', 'Clover', 'Diamond'][result%4];
         const rank = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'][Math.floor(result/4)];
         return suite + ' ' + rank;
+    }
+
+    get_card_id(value) {
+        let result = this.plaintext.indexOf(value);
+        if (result === -1) return undefined;
+        const suite = ['c', 'h', 's', 'd'][result%4];
+        const rank = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'][Math.floor(result/4)];
+        return rank + suite;
     }
 
     bet(amount) {
@@ -125,10 +140,12 @@ function finish_hand(winner) {
     }
     game.bets = [0,0];
     game.player_id = game.player_id === 0 ? 1 : 0;
+    game.chips = [game.chips[1], game.chips[0]]
     game.hand = [];
     game.opponent_hand = [];
     game.deck = undefined;
     game.river = [];
+    game.solved_hands = [undefined, undefined];
 
     if (game.player_id === 0) {
         game.encrypt_shuffle_deck(game.plaintext).then((result) => {
@@ -189,6 +206,7 @@ function on_message(data) {
             )).then(result => {
                 game.hand = result;
                 game.state = State.BET0;
+                game.update_solved();
             });
             break;
 
@@ -246,6 +264,7 @@ function on_message(data) {
                 )).then(result => {
                     game.river = game.river.concat(result);
                     game.state = State.BET0;
+                    game.update_solved();
                 });
             }
             break;
@@ -253,6 +272,30 @@ function on_message(data) {
         case 'show':
             if (data['sender'] !== game.player_id) {
                 game.opponent_hand = data['hand'];
+                game.update_solved();
+                const winner = poker_hand.winners(game.solved_hands);
+                setTimeout(()=> {
+                    if (winner[0] === game.solved_hands[0]) {
+                        finish_hand(0);
+                    } else {
+                        finish_hand(1);
+                    }
+                }, 5000);
+                setTimeout(() => {
+                    if (winner.length === 2) {
+                        // TIE
+                        alert('Tie!');
+                    } else {
+                        if (winner[0] === game.solved_hands[game.player_id]) {
+                            alert('You won!');
+                        } else {
+                            alert('You lost!');
+                        }
+                    }
+                }, 200);
+
+
+
             }
             break;
     }

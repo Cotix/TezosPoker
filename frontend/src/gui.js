@@ -76,8 +76,10 @@ export async function draw_loop() {
         ctx.fillText("Player " + (game.player_id + 1), 60, 30);
 
         if (game.hand.length !== 0) {
-            draw_text(`Your hand: ${game.get_card_value(game.hand[0])}, ${game.get_card_value(game.hand[1])}`,
-                canvas.width/2, canvas.height/1.5);
+            if (game.solved_hands[game.player_id] !== undefined) {
+                draw_text(`Your hand: ${game.solved_hands[game.player_id].descr}`,
+                    canvas.width / 2, canvas.height / 1.5);
+            }
 
             imageObjA.src = '/static/images/' + game.get_card_value(game.hand[0]) + '.png';
             imageObjB.src = '/static/images/' + game.get_card_value(game.hand[1]) + '.png';
