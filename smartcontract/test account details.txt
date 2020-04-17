@@ -1,0 +1,70 @@
+tezos account1:
+{
+  "mnemonic": [
+    "bacon",
+    "fatal",
+    "illegal",
+    "master",
+    "broccoli",
+    "close",
+    "shrimp",
+    "promote",
+    "chaos",
+    "public",
+    "motor",
+    "kitten",
+    "used",
+    "helmet",
+    "glare"
+  ],
+  "secret": "3fb89162a872fab22f598ac5ba9d83b241f0264b",
+  "amount": "14773828685",
+  "pkh": "tz1aTxH4JkTSoyWjCDFc1M5vAMFthTK4J8HB",
+  "password": "6ykPczd81k",
+  "email": "sswpmlja.gzrbbgxd@tezos.example.org"
+}
+{
+  "publicKey": "edpktqSwdRMsYzL7snCfZeaGmrswPYKhMpqZ4nupopPnLU3Vx86WMW",
+  "privateKey": "edskRf6SDjWY6QFg4tfb9BCEf964t2tEFwar1aocDFEfmofxiYuZT7RQt8Gn8a9feNycQ4toYrbjMGRhUtdiErXNn4zg4emZnD",
+  "publicKeyHash": "tz1aTxH4JkTSoyWjCDFc1M5vAMFthTK4J8HB",
+  "seed": "",
+  "storeType": 1
+}
+
+
+
+Tezos account2:
+{
+  "mnemonic": [
+    "lemon",
+    "tongue",
+    "degree",
+    "transfer",
+    "dad",
+    "shell",
+    "slim",
+    "police",
+    "course",
+    "tell",
+    "buyer",
+    "ritual",
+    "retire",
+    "face",
+    "wage"
+  ],
+  "secret": "ef18c8c3d32ddad1d92014bcc07617efff48ac86",
+  "amount": "9573170404",
+  "pkh": "tz1VUqBto3c1n6YhYPmR9cK1qfTh1mYZNCHN",
+  "password": "AhHetPSyTe",
+  "email": "yinhteya.bdouoeim@tezos.example.org"
+}
+{
+  "publicKey": "edpkvUKAYSAuSCYEQRGu5CoHewJkn2s7sd1Go8NP72rimJ2w5jjnGY",
+  "privateKey": "edskS83dagKogtJ4UBYf5g9epwnDtDDEBQAa7seSVDFZtQjrGvXNLkQiP3N65WH47vdYsd1QTCUr4dEA1qeKU7yH2nC5tkGqkJ",
+  "publicKeyHash": "tz1VUqBto3c1n6YhYPmR9cK1qfTh1mYZNCHN",
+  "seed": "",
+  "storeType": 1
+}
+
+contract:
+KT1Ve6GMDG3gFct3fJQAwYNiWa6cL9yM4VL6
