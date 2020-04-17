@@ -26,7 +26,7 @@ export async function draw_loop() {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
     ctx = canvas.getContext("2d");
-    ctx.font = '24pt';
+    ctx.font = '24pt Arial';
 
     // var imageObj = new Image();
     // imageObj.src = '/static/images/Diamond 2.png';
@@ -45,8 +45,6 @@ export async function draw_loop() {
     while(true) {
         await sleep(50);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-
 
         switch(game.state) {
             case State.LOBBY:
@@ -73,7 +71,13 @@ export async function draw_loop() {
                 break;
         }
 
-        ctx.fillText("Player " + (game.player_id + 1), 60, 30);
+        let pot = game.bets;
+        pot = Number(pot[0]) + Number(pot[1]);
+
+        ctx.textAlign = "left";
+        ctx.fillText("Player " + (game.player_id + 1), 5, 30);
+        ctx.fillText("Pot " + pot + " tez", 5, 70);
+        ctx.textAlign = "center";
 
         if (game.hand.length !== 0) {
             if (game.solved_hands[game.player_id] !== undefined) {

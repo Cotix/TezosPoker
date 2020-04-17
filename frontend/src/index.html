@@ -9,7 +9,21 @@
 <body>
 <canvas id="canvas"></canvas>
 <div id="controls" style="bottom: 0; position: absolute">
-    <button id="bet" onclick="pokerjs.game.bet(1);">Bet 1</button>
+    <input type="range" min="0" max="1000" value="100" step="100" id="myRange">
+
+    <button id="bet" onclick="pokerjs.game.bet(Number(slider.value)); console.log(pokerjs.game);"></button>
+    <button id="fold" onclick="pokerjs.game.bet(-1); console.log(pokerjs.game);">Fold</button>
+
+    <script>
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("bet");
+        output.innerHTML = "Bet " + slider.value; // Display the default slider value
+
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function() {
+          output.innerHTML = "Bet " + slider.value;
+        }
+    </script>
 </div>
 <script>
     (async () => await pokerjs.init())();
