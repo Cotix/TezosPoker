@@ -25,15 +25,15 @@ const keyStore2 = {
         storeType: 1
     };
 
-const operationFee = 100000;
-const storageLimit = 1000;
-const gasLimit = 750000;
-const playParams = "(Right (Pair 1 (Pair \"signature\" (Pair 333 2))))";
-const entryPoint = "play";
+async function invokeContract(keyStore, party, bet, winner) {
 
-async function invokeContract() {
+    const operationFee = 100000;
+    const storageLimit = 1000;
+    const gasLimit = 750000;
+    const playParams = `(Right (Right (Right (Pair ${party} (Pair ${bet} ${winner})))))`;
+    const entryPoint = "play";
 
-    const result = await conseiljs.TezosNodeWriter.sendContractInvocationOperation(tezosNode, keyStore1, contractAddress, 0,
+    const result = await conseiljs.TezosNodeWriter.sendContractInvocationOperation(tezosNode, keyStore, contractAddress, 0,
     operationFee, '', storageLimit, gasLimit, entryPoint, playParams, conseiljs.TezosParameterFormat.Michelson);
 
     console.log(`Injected operation group id ${result.operationGroupID}`);
